@@ -98,8 +98,8 @@ aws() {
     command aws  --endpoint-url=http://localhost:4566 "$@"
 }
 
-gitgit() {
-  git show
+gitx() {
+  git diff
   git add .
   git commit -m "few changes" .
   git push -u origin HEAD

@@ -11,14 +11,16 @@ alias vi='nvim'
 alias btop='btop --utf-force'
 alias du='du -h --max-depth=1'
 alias tmux='tmux -u'
-alias ll='eza -arR1T -L 3 --color' 
+alias ll='eza -arR1T -L 3 --color --git' 
 alias grep='grep --color=auto'
 alias yay='yay --answerclean All --answerdiff All '
 
 eval "$(starship init bash)"
 
 export PATH="$HOME/.cargo/bin:$PATH"
+#ource "$HOME/.rye/env"
 export CDPATH=.:~
+alias practice_golang="cd ~/Practice/golang/zerotomastery.io-golang/src/lectures/exercise && ll"
 export EDITOR=nvim
 
 
@@ -56,28 +58,37 @@ time_to_minutes() {
     echo $((hour * 60 + minute))
 }
 
-yaycleanup() { 
-    sudo /usr/bin/pacman -Svcc --noconfirm
-    sudo rm -rvf  .cache/yay/*
-}
+yt-dlp() { 
+    local format_options=( -f "bv*[vcodec^=avc1][height<=720]+ba/b[ext=mp4]" )
+    local filename_options=( -o "%(upload_date)s - %(uploader_id)s.%(title)s.%(id)s.%(ext)s" )
 
-yt-dl() { 
+    if [[ $1 == "--audio" ]]; then
+        format_options=( -x --audio-format mp3 -f "ba" )
+        shift
+    fi
+
     while [ $# -gt 0 ]; do
-        if [[ $1 =~ ^https?://.*\..*\/.* ]]; then
-            echo "Downloading now";
-            yt-dlp -o "%(upload_date)s - %(uploader_id)s.%(title)s.%(id)s.%(ext)s" -f "bv*[vcodec^=avc1][height<=720]+ba/b[ext=mp4]" "$1";
+        if [[ $1 =~ (https?://)?(www\.)?(youtube\.com/(watch\?v=|shorts/)|youtu\.be/)[a-zA-Z0-9_-]{11} ]]; then
+            command yt-dlp "${filename_options[@]}" "${format_options[@]}" "$1";
+        elif [[ $1 =~ ^[^[:space:]]+([[:space:]]+[^[:space:]]+)+$ ]]; then
+            command yt-dlp --default-search "ytsearch" "${filename_options[@]}" "${format_options[@]}" "$1";
         else
-            echo "Invalid url:  $1";
-	    exit 1
+            echo "Can't find requested resource...  >>>$1<<<";
         fi;
         shift;
         echo "$# remaining";
-        sleep 30;
+        if [ $# -ne 0 ]; then
+            echo "cooling down";
+            sleep 30;
+        fi
     done
 }
 
-yt-dlp-a() { 
-    yt-dlp -x --audio-format mp3 --get-filename -o "%(upload_date)s - %(uploader_id)s.%(title)s.%(id)s.%(ext)s" $1
+aws() {
+    AWS_ACCESS_KEY_ID=test \
+    AWS_SECRET_ACCESS_KEY=test \
+    AWS_DEFAULT_REGION=us-east-1 \
+    command aws  --endpoint-url=http://localhost:4566 "$@"
 }
 
 # autocomplete for kubecolor

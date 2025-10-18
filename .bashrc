@@ -18,8 +18,7 @@ alias yay='yay --answerclean All --answerdiff All '
 eval "$(starship init bash)"
 
 export PATH="$HOME/.cargo/bin:$PATH"
-#ource "$HOME/.rye/env"
-export CDPATH=.:~
+export CDPATH=.:..:~
 alias practice_golang="cd ~/Practice/golang/zerotomastery.io-golang/src/lectures/exercise && ll"
 export EDITOR=nvim
 
@@ -59,19 +58,27 @@ time_to_minutes() {
 }
 
 yt-dlp() { 
-    local format_options=( -f "bv*[vcodec^=avc1][height<=720]+ba/b[ext=mp4]" )
     local filename_options=( -o "%(upload_date)s - %(uploader_id)s.%(title)s.%(id)s.%(ext)s" )
+    local format_options=( -f "bv*[vcodec^=avc1][height<=720]+ba/b[ext=mp4]" )
+    local other_options=()
+    local match_other_options="^--[a-z]+((\-[a-z]+)+)?"
 
-    if [[ $1 == "--audio" ]]; then
-        format_options=( -x --audio-format mp3 -f "ba" )
-        shift
-    fi
+    while [[ $1 =~ ${match_other_options} ]]; do
+        if [[ $1 == "--audio" ]]; then
+            format_options=( -x --audio-format mp3 -f "ba" )
+            shift
+        else
+            other_options+=( "$1" )
+            shift
+        fi
+    done
 
     while [ $# -gt 0 ]; do
-        if [[ $1 =~ (https?://)?(www\.)?(youtube\.com/(watch\?v=|shorts/)|youtu\.be/)[a-zA-Z0-9_-]{11} ]]; then
-            command yt-dlp "${filename_options[@]}" "${format_options[@]}" "$1";
-        elif [[ $1 =~ ^[^[:space:]]+([[:space:]]+[^[:space:]]+)+$ ]]; then
-            command yt-dlp --default-search "ytsearch" "${filename_options[@]}" "${format_options[@]}" "$1";
+        local input=$(echo $1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        if [[ "${input}" =~ (https?://)?(www\.)?(youtube\.com/(watch\?v=|shorts/)|youtu\.be/)[a-zA-Z0-9_-]{11} ]]; then
+            command yt-dlp "${filename_options[@]}" "${format_options[@]}" "${other_options[@]}" "${input}";
+        elif [[ "${input}" =~ ^[^[:space:]]+([[:space:]]+[^[:space:]]+)+$ ]]; then
+            command yt-dlp --default-search "ytsearch" "${filename_options[@]}" "${format_options[@]}" "${other_options[@]}" "${input}";
         else
             echo "Can't find requested resource...  >>>$1<<<";
         fi;
@@ -89,6 +96,13 @@ aws() {
     AWS_SECRET_ACCESS_KEY=test \
     AWS_DEFAULT_REGION=us-east-1 \
     command aws  --endpoint-url=http://localhost:4566 "$@"
+}
+
+gitgit() {
+  git show
+  git add .
+  git commit -m "few changes" .
+  git push -u origin HEAD
 }
 
 # autocomplete for kubecolor

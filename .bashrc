@@ -102,7 +102,7 @@ aws() {
 
 gitx() {
   local url
-  url=$(git remote  -v | grep push | cut -f2 | cut -d' ' -f1) 
+  url=$(git remote -v |grep push |cut -f2 |cut -d' ' -f1) 
   if [[ $url =~ ^https://github.com/(.+)/(.+\.git) ]] ; then 
     git remote set-url origin git@github.com:"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"  ; 
   fi 
@@ -110,9 +110,9 @@ gitx() {
   git status
   git diff --staged
   #git restore --staged .env 
-  sleep 2
+  sleep 5
 
-  echo "Enter commit message:"
+  echo -e "\nEnter commit message :\n"
   read -r commit_message
   commit_message="${commit_message:-few changes}"
   git commit -m "$commit_message" || {
@@ -122,18 +122,17 @@ gitx() {
 
   local branch
   branch=$(git branch --show-current)
-  if ! git pull --rebase --verbose origin "$branch"; then
+  if ! git pull --ff-only --verbose origin "$branch"; then
     git status
     git diff --name-only --diff-filter=U
-    if [ -d ".git/rebase-apply" ] || [ -d ".git/rebase-merge" ]; then
-      git rebase --continue --verbose
-    else
-      echo "=== Rebase state ==="
-      git rebase --show-current-patch 2>/dev/null || echo "Cannot show current patch"
-      echo "resolve the rebase manually and pull clean, then push"
-      echo "  git rebase --continue"
-      echo "or"
-      echo "  git rebase --abort (to cancel)"
+    echo "ff pull failed"
+    sleep 5
+    if ! git pull origin "$branch"; then
+      echo "=== Merge conflict detected ==="
+      git status
+      echo "Resolve conflicts manually, then:"
+      echo "  git add . && git commit -m 'Merge conflict resolution'"
+      echo "  git push origin HEAD"
       return 1
     fi
   fi

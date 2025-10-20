@@ -97,7 +97,7 @@ aws() {
     AWS_ACCESS_KEY_ID=test \
     AWS_SECRET_ACCESS_KEY=test \
     AWS_DEFAULT_REGION=us-east-1 \
-    command aws  --endpoint-url=http://localhost:4566 "$@"
+    command aws --endpoint-url=http://localhost:4566 "$@"
 }
 
 gitx() {
@@ -115,14 +115,26 @@ gitx() {
   echo "Enter commit message:"
   read -r commit_message
   commit_message="${commit_message:-few changes}"
-  git commit -m "$commit_message" 
+  git commit -m "$commit_message" || {
+    echo "Commit failed or nothing to commit"
+    return 1
+  }
 
-  if ! git pull --rebase origin main; then
+  local branch
+  branch=$(git branch --show-current)
+  if ! git pull --rebase --verbose origin "$branch"; then
+    git status
+    git diff --name-only --diff-filter=U
     if [ -d ".git/rebase-apply" ] || [ -d ".git/rebase-merge" ]; then
-      git rebase --continue
+      git rebase --continue --verbose
     else
+      echo "=== Rebase state ==="
+      git rebase --show-current-patch 2>/dev/null || echo "Cannot show current patch"
       echo "resolve the rebase manually and pull clean, then push"
-      exit 1
+      echo "  git rebase --continue"
+      echo "or"
+      echo "  git rebase --abort (to cancel)"
+      return 1
     fi
   fi
   git push -u origin HEAD

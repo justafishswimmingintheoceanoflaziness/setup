@@ -99,9 +99,19 @@ aws() {
 }
 
 gitx() {
-  git diff
-  git add .
-  git commit -m "few changes" .
+  if [[ $(git remote  -v | grep push | cut -f2 | cut -d' ' -f1) =~ ^https://github.com/(.+)/(.+\.git) ]] ; then 
+    git remote set-url origin git@github.com:"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"  ; 
+  fi 
+  git add -p
+  git status
+  git diff --staged
+  #git restore --staged .env 
+  git commit -m "few changes" 
+  if ! git pull --rebase origin main; then
+    if [ -d ".git/rebase-apply" ] || [ -d ".git/rebase-merge" ]; then
+      git rebase --continue
+    fi
+  fi
   git push -u origin HEAD
 }
 

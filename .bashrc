@@ -23,7 +23,7 @@ alias practice_golang="cd ~/Practice/golang/zerotomastery.io-golang/src/lectures
 export EDITOR=nvim
 
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f "${HOME}"/.fzf.bash ] && [ -r "${HOME}"/.fzf.bash ] && source "${HOME}"/.fzf.bash
 # Source fzf key bindings and fuzzy completion
 [ -f /usr/share/fzf/key-bindings.bash ] && source /usr/share/fzf/key-bindings.bash
 [ -f /usr/share/fzf/completion.bash ] && source /usr/share/fzf/completion.bash
@@ -74,7 +74,9 @@ yt-dlp() {
     done
 
     while [ $# -gt 0 ]; do
-        local input=$(echo $1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        #local input=$(echo $1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        local input
+        input=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$1" )
         if [[ "${input}" =~ (https?://)?(www\.)?(youtube\.com/(watch\?v=|shorts/)|youtu\.be/)[a-zA-Z0-9_-]{11} ]]; then
             command yt-dlp "${filename_options[@]}" "${format_options[@]}" "${other_options[@]}" "${input}";
         elif [[ "${input}" =~ ^[^[:space:]]+([[:space:]]+[^[:space:]]+)+$ ]]; then
@@ -106,10 +108,19 @@ gitx() {
   git status
   git diff --staged
   #git restore --staged .env 
-  git commit -m "few changes" 
+  sleep 2
+
+  echo "Enter commit message:"
+  read -r commit_message
+  commit_message="${commit_message:-few changes}"
+  git commit -m "$commit_message" 
+
   if ! git pull --rebase origin main; then
     if [ -d ".git/rebase-apply" ] || [ -d ".git/rebase-merge" ]; then
       git rebase --continue
+    else
+      echo "resolve the rebase manually and pull clean, then push"
+      exit 1
     fi
   fi
   git push -u origin HEAD

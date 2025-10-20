@@ -101,7 +101,9 @@ aws() {
 }
 
 gitx() {
-  if [[ $(git remote  -v | grep push | cut -f2 | cut -d' ' -f1) =~ ^https://github.com/(.+)/(.+\.git) ]] ; then 
+  local url
+  url=$(git remote  -v | grep push | cut -f2 | cut -d' ' -f1) 
+  if [[ $url =~ ^https://github.com/(.+)/(.+\.git) ]] ; then 
     git remote set-url origin git@github.com:"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"  ; 
   fi 
   git add -p

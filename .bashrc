@@ -147,7 +147,7 @@ gitx() {
   # git diff --staged
   # sleep 2
 
-  read -t 10 -r -p "pls enter your commit msg : " commit_message
+  read -t 15 -r -p "pls enter your commit msg : " commit_message
   commit_message="${commit_message:-few changes}"
   git commit -m "$commit_message" || {
     echo "Commit failed or nothing to commit"
@@ -171,6 +171,7 @@ gitx() {
     fi
   fi
 
+  echo -e "\n\npushing now"
   git push origin "$branch"
 }
 

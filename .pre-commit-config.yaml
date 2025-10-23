@@ -74,17 +74,17 @@ repos:
       - id: terraform_fmt
       - id: terraform_validate
       - id: terraform_trivy
-      - id: terraform_docs
-        args:
-          - --hook-config=--create-file-if-not-exist=true
-          - --hook-config=--add-to-existing-file=true
-          - --args=--lockfile=false
+      # - id: terraform_docs
+      #   args:
+      #     - --hook-config=--create-file-if-not-exist=true
+      #     - --hook-config=--add-to-existing-file=true
+      #     - --args=--lockfile=false
       - id: terraform_tflint
       - id: terraform_checkov
-      - id: tfupdate
-        name: Autoupdate AWS provider versions
-        args:
-          - --args=provider aws
+      # - id: tfupdate
+      #   name: Autoupdate AWS provider versions
+      #   args:
+      #    - --args=provider aws
   - repo: local
     hooks:
       - id: trivy

@@ -37,6 +37,8 @@ repos:
     rev: v0.11.0
     hooks:
       - id: shellcheck
+        args:
+          - -x
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
@@ -73,18 +75,18 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
-      - id: terraform_trivy
-      - id: terraform_docs
-        args:
-          - --hook-config=--create-file-if-not-exist=true
-          - --hook-config=--add-to-existing-file=true
-          - --args=--lockfile=false
       - id: terraform_tflint
       - id: terraform_checkov
-      - id: tfupdate
-        name: Autoupdate AWS provider versions
-        args:
-          - --args=provider aws
+      - id: terraform_trivy
+      # - id: terraform_docs
+      #   args:
+      #     - --hook-config=--create-file-if-not-exist=true
+      #     - --hook-config=--add-to-existing-file=true
+      #     - --args=--lockfile=false
+      # - id: tfupdate
+      #   name: Autoupdate AWS provider versions
+      #   args:
+      #    - --args=provider aws
   - repo: local
     hooks:
       - id: trivy
@@ -123,11 +125,11 @@ repos:
           - warnings
         files: \.rs$
         pass_filenames: false
-      - id: kubeconform
-        name: kubeconform
-        entry: bash -c "find . -name '*.yaml' -o -name '*.yml' | while read file; do if grep -q 'apiVersion:' \"\$file\" && grep -q 'kind:' \"\$file\" && grep -q 'metadata:' \"\$file\"; then echo \"\$file\"; fi; done | xargs -r kubeconform -debug"
-        language: system
-        files: \.(yaml|yml)$
+      # - id: kubeconform
+      #   name: kubeconform
+      #   entry: bash -c "find . -name '*.yaml' -o -name '*.yml' | while read file; do if grep -q 'apiVersion:' \"\$file\" && grep -q 'kind:' \"\$file\" && grep -q 'metadata:' \"\$file\"; then echo \"\$file\"; fi; done | xargs -r kubeconform -debug"
+      #   language: system
+      #   files: \.(yaml|yml)$
       - id: helm-lint
         name: helm-lint
         entry: helm

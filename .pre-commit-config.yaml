@@ -37,6 +37,8 @@ repos:
     rev: v0.11.0
     hooks:
       - id: shellcheck
+        args:
+          - -x
 
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 3.0.0
